@@ -1,4 +1,5 @@
 import 'package:katalog/models/product.dart';
+import 'package:katalog/pages/profil_page.dart';
 import 'package:katalog/widgets/cart_icon.dart';
 import 'package:katalog/widgets/product_card.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +15,7 @@ class _CatalogPageState extends State<CatalogPage> {
   final _searchController = TextEditingController();
   String _searchTerm = '';
   String _category = 'Toutes';
+  int _currentIndex = 0;
 
   // create a cart variable to store the products added to the cart and the number of items for each product (by id)
   final Map<int, int> _cart = {};
@@ -42,97 +44,112 @@ class _CatalogPageState extends State<CatalogPage> {
     final scheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Catalogue'),
-        actions: [
-          CartIcon(
-            count: _cart.values.fold(0, (a, b) => a + b),
-            onPressed: () {
-              Navigator.pushNamed(context, '/cart', arguments: _cart);
-            },
-          ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (index) => setState(() => _currentIndex = index),
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Catalogue'),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profil'),
         ],
       ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            // recherche
-            Padding(
-              padding: const EdgeInsets.all(12),
-              child: Row(
+      appBar: _currentIndex == 0
+          ? AppBar(
+              title: const Text('Catalogue'),
+              actions: [
+                CartIcon(
+                  count: _cart.values.fold(0, (a, b) => a + b),
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/cart', arguments: _cart);
+                  },
+                ),
+              ],
+            )
+          : null,
+      body: _currentIndex == 1
+          ? const ProfilPage()
+          : SafeArea(
+              child: Column(
                 children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _searchController,
-                      decoration: const InputDecoration(
-                        prefix: Icon(Icons.search),
-                        hintText: 'Rechercher un produit',
-                        border: OutlineInputBorder(),
-                        isDense: true,
-                      ),
-                      onChanged: (value) => setState(() => _searchTerm = value),
+                  // recherche
+                  Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: _searchController,
+                            decoration: const InputDecoration(
+                              prefix: Icon(Icons.search),
+                              hintText: 'Rechercher un produit',
+                              border: OutlineInputBorder(),
+                              isDense: true,
+                            ),
+                            onChanged: (value) =>
+                                setState(() => _searchTerm = value),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        DropdownButton<String>(
+                          value: _category,
+                          items: [
+                            for (final c in categories)
+                              DropdownMenuItem(value: c, child: Text(c)),
+                          ],
+                          onChanged: (value) =>
+                              setState(() => _category = value ?? 'Toutes'),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  DropdownButton<String>(
-                    value: _category,
-                    items: [
-                      for (final c in categories)
-                        DropdownMenuItem(value: c, child: Text(c)),
-                    ],
-                    onChanged: (value) =>
-                        setState(() => _category = value ?? 'Toutes'),
+                  //liste des produits
+                  Expanded(
+                    child: products.isEmpty
+                        ? const Center(child: Text('Aucun produit'))
+                        : GridView.builder(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 2,
+                                  mainAxisSpacing: 8,
+                                  crossAxisSpacing: 8,
+                                  childAspectRatio: 0.75,
+                                ),
+                            itemCount: products.length,
+                            itemBuilder: (_, i) {
+                              final product = products[i];
+                              return ProductCard(
+                                product: product,
+                                colorScheme: scheme,
+                                onTap: () async {
+                                  final numberOfItems =
+                                      await Navigator.pushNamed(
+                                        context,
+                                        '/detail',
+                                        arguments: product,
+                                      );
+
+                                  if (numberOfItems != null &&
+                                      numberOfItems is int) {
+                                    setState(() {
+                                      if (_cart.containsKey(product.id)) {
+                                        _cart[product.id] =
+                                            _cart[product.id]! + numberOfItems;
+                                      } else {
+                                        _cart[product.id] = numberOfItems;
+                                      }
+                                    });
+                                  }
+                                },
+                              );
+                            },
+                          ),
                   ),
                 ],
               ),
             ),
-            //liste des produits
-            Expanded(
-              child: products.isEmpty
-                  ? const Center(child: Text('Aucun produit'))
-                  : GridView.builder(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
-                      ),
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            mainAxisSpacing: 8,
-                            crossAxisSpacing: 8,
-                            childAspectRatio: 0.75,
-                          ),
-                      itemCount: products.length,
-                      itemBuilder: (_, i) {
-                        final product = products[i];
-                        return ProductCard(
-                          product: product,
-                          colorScheme: scheme,
-                          onTap: () async {
-                            final numberOfItems = await Navigator.pushNamed(
-                              context,
-                              '/detail',
-                              arguments: product,
-                            );
-
-                            if (numberOfItems != null && numberOfItems is int) {
-                              setState(() {
-                                if (_cart.containsKey(product.id)) {
-                                  _cart[product.id] =
-                                      _cart[product.id]! + numberOfItems;
-                                } else {
-                                  _cart[product.id] = numberOfItems;
-                                }
-                              });
-                            }
-                          },
-                        );
-                      },
-                    ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 

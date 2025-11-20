@@ -29,11 +29,11 @@ class ProfilPage extends StatelessWidget {
                     const CircleAvatar(
                       radius: 60,
                       //backgroundImage: NetworkImage('https://avatars.githubusercontent.com/u/9919?s=200&v=4'),
-                      backgroundImage: AssetImage('assets/profile.png'),
+                      backgroundImage: AssetImage('profile.jpg'),
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'Vincent',
+                      'Charmeel',
                       style: Theme.of(context).textTheme.headlineMedium,
                     ),
                     const SizedBox(height: 4),
@@ -54,9 +54,9 @@ class ProfilPage extends StatelessWidget {
                       child: Padding(
                         padding: const EdgeInsets.all(16),
                         child: const Text(
-                          "Passionné par le mobile et le design. "
-                          "J’aime construire des expériences rapides, accessibles "
-                          "et élégantes avec Flutter.",
+                          "Créateur d'applications mobiles innovantes avec Flutter. "
+                          "Expert en architecture clean et animations fluides. "
+                          "Toujours à la recherche du pixel parfait et de la performance optimale.",
                           textAlign: TextAlign.center,
                         ),
                       ),
@@ -75,12 +75,12 @@ class ProfilPage extends StatelessWidget {
                         children: const [
                           _ContactTile(
                             icon: Icons.email,
-                            label: 'alex.martin@example.com',
+                            label: 'charmeel.vodouhe@abc.com',
                           ),
                           Divider(height: 1),
                           _ContactTile(
                             icon: Icons.phone,
-                            label: '+33 6 12 34 56 78',
+                            label: '+33 6 16 72 45 89',
                           ),
                           Divider(height: 1),
                           _ContactTile(

@@ -11,7 +11,7 @@ class Product {
     required this.id,
     required this.name,
     required this.description,
-    required this.price,  
+    required this.price,
     required this.imageUrl,
     required this.category,
     DateTime? createdAt,
@@ -43,7 +43,34 @@ final demoProducts = <Product>[
     description: 'Samsung Galaxy Z flip 7',
     price: 590,
     imageUrl:
-        'https://pimcdn.sharafdg.com/cdn-cgi/image/width=600,height=600,fit=pad,format=webp,quality=70/images/S500934792_1?1753604109',
+        'https://media.ldlc.com/r1600/ld/products/00/06/25/92/LD0006259235.jpg',
     category: 'Smartphone',
+  ),
+  Product(
+    id: 4,
+    name: 'MacBook Pro 14',
+    description: 'Apple M3 Pro, 16GB RAM, 512GB SSD',
+    price: 2499,
+    imageUrl:
+        'https://www.achatmoinscher.com/photoProd/zoom/541/macbook-pro-14-2021-puce-apple-m1-pro-ram-16go-sto-157905279.jpg',
+    category: 'Laptop',
+  ),
+  Product(
+    id: 5,
+    name: 'Sony WH-1000XM5',
+    description: 'Casque à réduction de bruit sans fil',
+    price: 349,
+    imageUrl:
+        'https://static.fnac-static.com/multimedia/Images/FR/MDM/24/24/8d/26027044/1540-1/tsp20250904153718/Casque-audio-arceau-sans-fil-Sony-WH1000XM5-rose-a-reduction-de-bruit.jpg',
+    category: 'Audio',
+  ),
+  Product(
+    id: 6,
+    name: 'iPad Pro 13',
+    description: 'Apple M4, 256GB, Wi-Fi',
+    price: 1299,
+    imageUrl:
+        'https://media.rueducommerce.fr/r500/rd/products/de1/de155ac38c5e3196da4eb0111828b0dd4f0c1134.jpg',
+    category: 'Tablet',
   ),
 ];
