@@ -1,0 +1,144 @@
+import 'package:katalog/models/product.dart';
+import 'package:katalog/widgets/cart_icon.dart';
+import 'package:katalog/widgets/product_card.dart';
+import 'package:flutter/material.dart';
+
+class CatalogPage extends StatefulWidget {
+  const CatalogPage({super.key});
+
+  @override
+  State<CatalogPage> createState() => _CatalogPageState();
+}
+
+class _CatalogPageState extends State<CatalogPage> {
+  final _searchController = TextEditingController();
+  String _searchTerm = '';
+  String _category = 'Toutes';
+
+  // create a cart variable to store the products added to the cart and the number of items for each product (by id)
+  final Map<int, int> _cart = {};
+
+  List<String> get categories =>
+      //['Toutes', ...{for (var p in demoProducts.map((p) => p.category)) p.category}].toSet().toList();
+      [
+        'Toutes',
+        ...{for (final p in demoProducts) p.category},
+      ];
+
+  List<Product> get products {
+    final query = _searchTerm.trim().toLowerCase();
+    return demoProducts.where((p) {
+      final okCategory = _category == 'Toutes' || p.category == _category;
+      final okSearch =
+          //query.isEmpty ||
+          p.name.toLowerCase().contains(query) ||
+          p.description.toLowerCase().contains(query);
+      return okSearch && okCategory;
+    }).toList();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Catalogue'),
+        actions: [
+          CartIcon(
+            count: _cart.values.fold(0, (a, b) => a + b),
+            onPressed: () {
+              Navigator.pushNamed(context, '/cart', arguments: _cart);
+            },
+          ),
+        ],
+      ),
+      body: SafeArea(
+        child: Column(
+          children: [
+            // recherche
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _searchController,
+                      decoration: const InputDecoration(
+                        prefix: Icon(Icons.search),
+                        hintText: 'Rechercher un produit',
+                        border: OutlineInputBorder(),
+                        isDense: true,
+                      ),
+                      onChanged: (value) => setState(() => _searchTerm = value),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  DropdownButton<String>(
+                    value: _category,
+                    items: [
+                      for (final c in categories)
+                        DropdownMenuItem(value: c, child: Text(c)),
+                    ],
+                    onChanged: (value) =>
+                        setState(() => _category = value ?? 'Toutes'),
+                  ),
+                ],
+              ),
+            ),
+            //liste des produits
+            Expanded(
+              child: products.isEmpty
+                  ? const Center(child: Text('Aucun produit'))
+                  : GridView.builder(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            mainAxisSpacing: 8,
+                            crossAxisSpacing: 8,
+                            childAspectRatio: 0.75,
+                          ),
+                      itemCount: products.length,
+                      itemBuilder: (_, i) {
+                        final product = products[i];
+                        return ProductCard(
+                          product: product,
+                          colorScheme: scheme,
+                          onTap: () async {
+                            final numberOfItems = await Navigator.pushNamed(
+                              context,
+                              '/detail',
+                              arguments: product,
+                            );
+
+                            if (numberOfItems != null && numberOfItems is int) {
+                              setState(() {
+                                if (_cart.containsKey(product.id)) {
+                                  _cart[product.id] =
+                                      _cart[product.id]! + numberOfItems;
+                                } else {
+                                  _cart[product.id] = numberOfItems;
+                                }
+                              });
+                            }
+                          },
+                        );
+                      },
+                    ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+}
